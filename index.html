@@ -1,0 +1,1475 @@
+﻿<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="Dapp/asset/img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="76x76" href="Dapp/asset/img/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Epocum</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+	<!-- Base style -->
+    <link href="Dapp/asset/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="Dapp/asset/css/style.css" rel="stylesheet" />
+	<!-- Transactions -->
+    <link href="Dapp/asset/css/HoldOn.css" rel="stylesheet" type="text/css">
+    <!--     Fonts and icons     -->
+    <link href="Dapp/asset/css/loopFont.css" rel="stylesheet" type="text/css" />
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300,700' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href="Dapp/asset/css/nucleo-icons.css" rel="stylesheet">
+	<!-- Javascript -->
+    <script src="Dapp/asset/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <!-- web3 -->
+    <script type="text/javascript" src="Dapp/asset/js/bignumber.min.js"></script>
+	<script type="text/javascript" src="Dapp/asset/js/web3-light.min.js"></script>
+	<script type="text/javascript" src="Dapp/asset/js/ethereumjs-tx.js"></script>
+	<script type="text/javascript" src="Dapp/asset/js/keythereum.js"></script>
+    <!-- Epocum Javascript -->
+    <script type="text/javascript" src="Dapp/asset/js/epocum/epocum.link.js"></script>
+    <!-- Fb Javascript -->
+    <script type="text/javascript" src="Dapp/asset/js/epocum/epocum.fb.link.js"></script>
+    <!-- G+ Javascript -->
+    <!--<script type="text/javascript" src="Dapp/asset/js/epocum/epocum.google.link.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+    <!-- Ipfs Javascript -->
+    <script src="Dapp/asset/js/ipfs/buffer.js"></script>
+    <script src="Dapp/asset/js/ipfs/file-type.js"></script>
+    <script src="Dapp/asset/js/ipfs/ipfs.js"></script>
+
+    <script>
+        // MetaMask injects the web3 library for us.
+
+
+
+        window.addEventListener('load', function() {
+			
+	            HoldOn.open({
+	                theme: "sk-cube-grid",
+	                message: "<h5>Epocum is retriving data from the smartcontract</h5>"
+	            });
+			
+            setTimeout(function() {
+                HoldOn.close();
+                checkIfNothing();
+                document.getElementById("userInfo").style.visibility = "visible";
+                document.getElementById("profileTab").style.visibility = "visible";
+                document.getElementById("my-tab-content").style.visibility = "visible";
+                //$('#noticeModal').modal();
+
+            }, 2000);
+
+            // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+            if (typeof web3 !== 'undefined') {
+                // Use Mist/MetaMask's provider
+                window.web3 = new Web3(web3.currentProvider);
+                
+		             web3.version.getNetwork((err, netId) => {
+		                switch (netId) {
+		                    case "1":
+		                        console.log('This is mainnet')
+		                        break
+		                    case "2":
+		                        console.log('This is the deprecated Morden test network.')
+		                        break
+		                    case "3":
+		                        console.log('This is the ropsten test network.')
+		                        break
+		                    default:
+		                        console.log('This is an unknown network.')
+		                }
+		
+		
+		            })
+
+
+            } else {
+                //console.log('No web3? You should consider trying MetaMask!');
+
+    			var Web3 = require('web3');
+    			var web3 = new Web3();
+   				web3.setProvider(new web3.providers.HttpProvider("https://ropsten.infura.io/KWdoko3z2LEwyjnvEAoW"));
+    			//console.log(web3);   
+
+                    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+                //window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+            }
+
+
+        })
+
+
+        function getPhotoETH() {
+
+            var myFriend = document.getElementById("ajaxETH").value;
+            setPhotoETH(myFriend);
+
+        }
+
+        function getPhotoEPM() {
+
+            var myFriend = document.getElementById("ajaxEPM").value;
+            setPhotoEPM(myFriend);
+
+        }
+
+        function sendEPM() {
+
+            var toWallet = document.getElementById("friendWalletEPM").innerHTML;
+            var amountx = document.getElementById("amountEPM").value;
+            var idFbTo = document.getElementById("idFbEPM").innerHTML;
+            toName = document.getElementById("ajaxEPM").value;
+            var from = document.getElementById("wallet").innerHTML;
+            var pass = document.getElementById("passwdEPM").value;
+
+            myName = document.getElementById("name").innerHTML + ' ' + document.getElementById("surname").innerHTML;
+            wait();
+            myLocalWallet = readCookie('EpocumWallet');
+            if (!myLocalWallet) {
+
+            sendEPMCurrency(toWallet, amountx, from, myName, idFbTo, toName);
+
+			      }else{
+			      		console.log('invio con modalità presigned');
+			      		sendMyToken(myLocalWallet,pass,toWallet,amountx);
+			      }
+
+        }
+
+
+
+        function sendETH() {
+
+            var toWallet = document.getElementById("friendWalletETH").innerHTML;
+            var amountx = document.getElementById("amountETH").value;
+            var idFbTo = document.getElementById("idFbETH").innerHTML;
+            var from = document.getElementById("wallet").innerHTML;
+            myName = document.getElementById("name").innerHTML + ' ' + document.getElementById("surname").innerHTML;
+			toName = document.getElementById("ajaxETH").value;
+			            var pass = document.getElementById("passwdETH").value;
+
+            wait();
+            
+            myLocalWallet = readCookie('EpocumWallet');
+            if (!myLocalWallet) {
+					    
+					    console.log('invio con metamask');
+
+			            web3.eth.sendTransaction({
+			                from: document.getElementById("wallet").innerHTML,
+			                to: toWallet,
+			                value: web3.toWei(amountx, "ether")
+			            }, function(err, transactionHash) {
+			                if (!err)
+			                    console.log(transactionHash);
+			                //fullNameto = document.getElementById("ajaxETH").value;
+			                //myname = document.getElementById("name").innerHTML + document.getElementById("surname").innerHTML
+			                newTransaction('testkey', transactionHash, myName, idFbTo, from, toName, toWallet, 'ETH', amountx);
+			
+			                waitingValidation()
+			
+			            });
+			            
+			      }else{
+			      
+
+			      		console.log('invio con modalità presigned');
+			      		sendMyEth(myLocalWallet, pass, toWallet,amountx);
+			      }
+
+        }
+
+        function clean() {
+            document.getElementById("myTransactionPhotoETH").src = "Dapp/asset/img/team/user.jpg";
+            document.getElementById("myTransactionPhotoEPM").src = "Dapp/asset/img/team/user.jpg";
+            document.getElementById("friendWalletETH").innerHTML = '';
+            document.getElementById("friendWalletEPM").innerHTML = '';
+            document.getElementById("amountETH").value = '';
+            document.getElementById("amountEPM").value = '';
+            document.getElementById("passwdETH").value = '';
+            document.getElementById("passwdEPM").value = '';
+            document.getElementById("ajaxEPM").value = '';
+            document.getElementById("ajaxETH").value = '';
+            document.getElementById('openTransactionEPM').style.visibility = 'visible';
+            document.getElementById('openTransactionETH').style.visibility = 'visible';
+
+            prepare();
+        }
+
+
+
+
+        // Fill table with data
+        function populateTransactionsIn() {
+
+            // Empty content string
+            var tableContent = '';
+
+            // jQuery AJAX call for JSON
+            var myWallet = document.getElementById("walletAddr").innerHTML;
+			
+			if (myWallet != '') {
+
+			            $.getJSON('https://epocum.com:8888/getTransactionsIn/' + myWallet, function(data) {
+			
+			                // For each item in our JSON, add a table row and cells to the content string
+			                $.each(data, function() {
+			
+			
+			                    tableContent += '<div class="media">';
+			                    tableContent += '<a class="pull-left" href="https://ropsten.etherscan.io/tx/'+this.txHash+'">';
+			                    tableContent += '<div class="retweet">';
+			                    tableContent += '<img src="Dapp/asset/img/arrowDown.svg">';
+			                    tableContent += '</div>';
+			                    tableContent += '</a>';
+			                    tableContent += '<div class="media-body">';
+			                    tableContent += '<h5 class="media-heading"><small>' + this.date + '</small></h5>';
+			                    tableContent += '<p> I ve just receive <a href="#paper-kit" class="link-info">' + this.amount + this.currency + '</a> from <a href="#paper-kit" class="link-danger">' + this.from + '</a> </p>';
+			                    tableContent += '<p style="font-size:8px;"> Tx: ' + this.txHash + '</p>';
+			                    tableContent += '</div>';
+			                    tableContent += '</div> <!-- end media -->';
+			
+			
+			                });
+			
+			                // Inject the whole content string into our existing HTML table
+			                $('#populateTransIn').html(tableContent);
+			
+			            });
+			            
+			   }
+
+        };
+
+        // Fill table with data
+        function populateTransactionsOut() {
+
+            // Empty content string
+            var tableContent = '';
+
+            // jQuery AJAX call for JSON
+            var myWallet = document.getElementById("walletAddr").innerHTML;
+			
+			if (myWallet != '') {
+
+			            $.getJSON('https://epocum.com:8888/getTransactionsOut/' + myWallet, function(data) {
+			
+			                // For each item in our JSON, add a table row and cells to the content string
+			                $.each(data, function() {
+			
+			
+			                    tableContent += '<div class="media">';
+			                    tableContent += '<a class="pull-left" href="https://ropsten.etherscan.io/tx/'+this.txHash+'">';
+			                    tableContent += '<div class="retweet">';
+			                    tableContent += '<img src="Dapp/asset/img/arrowUp.svg">';
+			                    tableContent += '</div>';
+			                    tableContent += '</a>';
+			                    tableContent += '<div class="media-body">';
+			                    tableContent += '<h5 class="media-heading"><small>' + this.date + '</small></h5>';
+			                    tableContent += '<p> I ve just sent <a href="#paper-kit" class="link-info">' + this.amount + this.currency + '</a> to <a href="#paper-kit" class="link-danger">' + this.toName + '</a> </p>';
+			                    tableContent += '<p style="font-size:8px;"> Tx: ' + this.txHash + '</p>';
+			                    tableContent += '</div>';
+			                    tableContent += '</div> <!-- end media -->';
+			
+			
+			                });
+			
+			                // Inject the whole content string into our existing HTML table
+			                $('#populateTransOut').html(tableContent);
+			
+			            });
+			 }
+
+        };
+
+
+        function newAds() {
+
+            newSmartAds(document.getElementById('content').value, 'pkey', document.getElementById('name').innerHTML + ' ' + document.getElementById('surname').innerHTML, web3.eth.accounts[0], document.getElementById('mywebsite2').value);
+            closeTransactions();
+
+        }
+        
+        
+function checkAmount() {
+
+					var W = document.getElementById('wallet').innerHTML;	
+					
+					if (!web3) {
+		    		    var Web3 = require('web3');
+    					var web3 = new Web3();
+   						web3.setProvider(new web3.providers.HttpProvider("https://ropsten.infura.io/KWdoko3z2LEwyjnvEAoW"));
+   						//console.log('Web3 set on INFURA');
+					} else {
+						//console.log('Web3 set Local');
+					}
+					//console.log(W);
+					if (W != '') {
+						
+		    			web3.eth.getBalance(W, function(error, result) {
+		                    if (!error) {
+		                        a = result.toNumber();
+		                        b = a / 1000000000000000000;
+		                        var myEthImport = b.toFixed(4);
+		                        if (a == 0) {  document.getElementById("chargeInfo").style.display = 'block'; }
+		                        document.getElementById("eth").innerHTML = '<b>' + myEthImport + ' ETH</b>';
+		                    } else {
+		                        console.error(error);
+		                    }
+		                });
+		
+					    var epocum = web3.eth.contract(EPM_ABI).at(EPM_contract);
+					        epocum.balanceOf(document.getElementById('wallet').innerHTML, function(error, result) {
+					                    if (!error) {
+					                        c = result.toNumber();
+					                        d = c / 1000000000000000000;
+					                        var myEpmImport = d.toFixed(4);
+					                        document.getElementById("epm").innerHTML = '<b>' + myEpmImport + ' EPM</b>';
+					                    } else {
+					                        console.error(error);
+					                    }
+					                });
+         				
+					}       
+        }
+
+
+
+
+
+    </script>
+
+
+
+	<style type="text/css">
+.style1 {
+	font-weight: normal;
+}
+</style>
+
+
+
+</head>
+
+
+<body class="twitter-profile-tweets">
+
+    <nav class="navbar navbar-toggleable-md" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="container">
+            <a class="navbar-brand" href="/" style="font-family:'Loops of Fury  Wide';"><img src="Dapp/asset/img/logo.svg" style="width:70%; height:30px;"></a>
+            <a class="navbar navbar-nav nav-explorer" href="discover"><img src="Dapp/asset/img/explorer.svg"></a>
+        </div>
+    </nav>
+
+
+    <div class="wrapper">
+
+        <div class="profile-content section-white-gray">
+            <div class="container">
+                <div class="row owner">
+                    <div class="col-md-2 offset-md-5 col-sm-4 offset-md-4 col-xs-6 offset-md-3 text-center">
+                        <div class="avatar">
+                            <img src="Dapp/asset/img/team/user.jpg" id="imageprofile" onclick="returnProfile()" alt="Circle Image" class="img-oval img-responsive">
+                        </div>
+
+                        <img src="Dapp/asset/img/cog.svg" onclick="setting()" style="width:30px; margin-left: -140px;" alt="">
+                        <div class="infoex">
+
+
+                            <a href="#" data-toggle="modal" data-target="" class="share-btn">
+                                <span class="share-btn-action share-btn-plus">Connections</span>
+                                <span class="share-btn-count" id="nvisit">0</span>
+                            </a>
+                        </div>
+                        <div class="name">
+                            <h4 id="name"></h4>
+                        </div>
+                        <div class="surname">
+                            <h4 id="surname"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="userInfo" style="visibility:hidden">
+                    <div class="col-md-6 offset-md-3 text-center">
+                        <p id="description">
+                            <a class="link-danger twitter-hashtag" href="javascript: void(0);"></a>
+                        </p>
+                        <div class="description-details">
+                       
+                            
+                            <ul class="list-unstyled">
+                                <li>
+                                    <p id="eth" style="font-size:small; margin-top:5px;"></p>
+                                </li>
+                                <li>
+                                    <p id="epm" style="font-size:small; margin-top:-10px;"></p>
+                                </li>
+
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-tabs" style="visibility:hidden" id="profileTab">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <ul id="tabs" class="nav nav-tabs" role="tablist">
+     
+                                <li class="nav-item">
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="my-tab-content" style="visibility:hidden" class="tab-content">
+                        <div class="tab-pane active" id="tweets" role="tabpanel">
+                            <div class="row">
+                            
+                            <div class="col-md-4 col-sm-6">
+                                    <div class="card card-with-shadow" style="min-height:100px;">
+                                        <div class="card-block">
+                                            <h7 class="card-title pull-right" id="suggestionTitle"><small><a href="#" class="link-info">Info box <i class="fa fa-info fa-2x" ></i></a></small>
+                                            </h7> 
+
+                                            
+                                            
+                                            
+                                            <div class="accounts-suggestion" id="chargeInfo" style="display:none">
+                                                <ul class="list-unstyled">
+                                                    <li class="account" >
+                                                        <div class="row">
+                                                            
+                                                            <div class="col-md-12 description-section" style=" margin-left:20px;" >
+                                                                <a href="#" class="text-muted"></a>
+                                                                <br />
+                                                                <span class="text-muted"><small> <a href="#" style="font-size:12px;" class="link-info"> Charge </a> your wallet with ETH testnet from <a href="https://faucet.metamask.io/">here</a> if you are using metamask ! </small></span>
+                                                            </div>
+															
+                                                            
+                                                        </div>
+                                                    </li>
+                                                    
+                                                    
+                                                </ul>
+                                            </div>
+
+
+<div class="accounts-suggestion" id="accountInfo" style="display:none">
+                                                <ul class="list-unstyled">
+                                                    <li class="account" >
+                                                        <div class="row">
+                                                            
+                                                            <div class="col-md-12 description-section" style=" margin-left:20px;" >
+                                                                <a href="#" class="text-muted"></a>
+                                                                <br />
+                                                                <span class="text-muted"><small> <a href="#" onclick="smartCheckUser();" style="font-size:12px;" class="link-info"> Activate</a> your account ! </small></span>
+                                                            </div>
+															
+                                                            
+                                                        </div>
+                                                    </li>
+                                                    
+                                                    
+                                                </ul>
+                                            </div>
+                                            
+                                            
+                                        </div>
+                                    </div>
+                                    <!-- end card -->
+                                    <!-- end card -->
+                                </div>
+
+
+                             <div class="col-md-4 col-sm-6">
+                                
+                                <div class="card card-with-shadow" style="text-align:center;height:100px;">
+                                        <div class="card-block">
+                                        <img src="Dapp/asset/img/wallet.svg" alt="Wallet">
+                                            <h7 class="card-title" id="mywallet">Manage your funds ! <small><a href="#" onclick="manageFund()" class="link-info">View/</a></small><small><a href="#smallAlertModal" data-toggle="modal" data-target="#smallAlertModal"  class="link-info">Send</a></small></h7>
+												 
+												 <small id="walletAddr" style="display:none"></small>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                 <div class="col-md-4 col-sm-6">
+                                
+                                 <div class="card card-with-shadow" style="text-align:center;height:100px;">
+                                        <div class="card-block">
+                                        <img src="Dapp/asset/img/smartcontract.svg" alt="Wallet">
+
+
+                                            <h7 class="card-title" id="suggestionTitle"><strong id="numSmart">0</strong> Smart Share &middot; <small><a href="#" onclick="smartTab()" data-toggle="modal" class="link-info">View/</a></small><small><a href="#newSmartModal" data-toggle="modal" data-target="#newSmartModal"  class="link-info">Create</a></small></h7>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                
+                                
+
+
+                                <div class="col-md-4 col-sm-6" >
+                                
+                                 <div class="card card-with-shadow" style="text-align:center; height:100px;">
+                                        <div class="card-block">
+                                            <h7 class="card-title" id="suggestionTitle">Epocum Analytics &middot; <small><a href="chart" class="link-info">Show</a></small></h7>
+											<img src="Dapp/asset/img/graph.svg" alt="Wallet">
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                
+                                
+                                
+                                <div class="col-md-4 col-sm-6">
+                                
+                                 <div class="card card-with-shadow" style="text-align:center;height:100px;">
+                                        <div class="card-block">
+                                            
+                                            <fieldset>
+							 <a href="#addWebModal"  onclick="define();" data-toggle="modal" data-target="#addWebModal"><img src="Dapp/asset/img/add.svg"></a>
+                                <select id="mywebsite" onchange="getVisitors()" class="noborder" style="font-family: 'Courier New', Courier, monospace; ">
+                                </select>
+                                <svg onCLick="getCode()" id="master-artboard" viewBox="0 0 123.80279541015625 155.140869140625" version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" style="enable-background:new 0 0 1400 980; margin-top:-60px; padding-top:20px;" width="23.80279541015625px" height="55.140869140625px">
+                                    <rect id="ee-background" x="0" y="0" width="123.80279541015625" height="155.140869140625" style="fill: white; fill-opacity: 0; pointer-events: none;" />
+
+
+
+
+                                    <g transform="matrix(1, 0, 0, 1, -1014.0140725893059, -135.28168855087551)">
+                                        <path d="M 1131.199951171875 250.60000610351562 L 1051.199951171875 250.60000610351562 L 1051.199951171875 142.89999389648438 L 1110.9000244140625 142.89999389648438 L 1131.199951171875 167.89999389648438 Z" class="st0" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                        <path d="M 1051.199951 159.100006 L 1038.199951 159.100006 L 1038.199951 175.199997 L 1038.199951 266.700012 L 1105.199951 266.700012 L 1118.199951 266.700012 L 1118.199951 250.600006" class="st0" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                        <path d="M 1105.199951 266.700012 L 1105.199951 282.899994 L 1025.199951 282.899994 L 1025.199951 175.199997 L 1038.199951 175.199997" class="st0" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                        <path d="M 1110.900024 142.899994 L 1110.900024 167.899994 L 1131.199951 167.899994" class="st0" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                        <path d="M 1063.199951 239.600006 L 1071.900024 239.600006" class="st1" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                        <path d="M 1083.900024 239.600006 L 1124.199951 239.600006" class="st1" style="fill: none; stroke: rgb(14, 18, 53); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10;" transform="matrix(1, 0, 0, 1, 0, 0)" />
+                                    </g>
+
+
+
+
+
+                                </svg>
+                               <br >
+                               <h7 class="card-title" id="suggestionTitle"><small>Read our tutorial &middot;</small><small><a href="https://www.epocum.com/guide-3" class="link-info">Here</a></small></h7>
+
+                            </fieldset>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                
+                                
+                                
+                                
+                                
+                                
+                                <div class="col-md-4 col-sm-6">
+                                
+                                 <div class="card card-with-shadow" style="text-align:center;height:100px;">
+                                        <div class="card-block">
+                                        <img src="Dapp/asset/img/acceptance.svg" style="width:35px;" alt="Wallet">
+
+
+                                            <h7 class="card-title" id="suggestionTitle"><strong id="numAcceptance">0</strong> Acceptance &middot; <small><a href="#" onclick="acceptanceTab()" data-toggle="modal" class="link-info">View</a></small></h7>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+<!----------- START  infobox -->
+<!----------- end infobox -->
+                                
+                            </div>
+                        </div>
+
+						<div class="tab-pane text-center" id="media" role="tabpanel">
+
+
+                            <div class="row">
+                                <div class="col-md-4">
+
+                                    <h6>Linking your social you will able to send and receive payment from every friends that use epocum</h6>
+
+
+
+                                </div>
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="card card-with-shadow">
+                                        <div class="card-block" id="Friends_suggestions">
+
+
+
+                                            <fb:login-button scope="public_profile,email,user_friends" id="fbLink" onlogin="fbLogin();">
+                                            </fb:login-button>
+
+                                            <div id="status">
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <!-- end card -->
+                                    <!-- end card -->
+                                </div>
+
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="card card-with-shadow">
+                                        <div class="card-block" id="Friends_suggestions">
+
+                                            <img src="Dapp/asset/img/googleplus.svg" style="width:7%" id="signin-button" onclick="handleSignInClick()" />
+
+
+                                        </div>
+                                    </div>
+                                    <!-- end card -->
+                                    <!-- end card -->
+                                </div>
+
+                            </div>
+
+
+
+
+
+                        </div>
+
+
+                        <div class="tab-pane text-center" id="connections" role="tabpanel">
+
+
+
+
+
+                            <h6>Click show and Copy paste the link appear everywere back to the html code of your website</h6>
+
+                            <div class="text-center">
+                                <div id="code" style="margin-top:50px;">
+
+                                    <p>
+                                        <pre id="precode" class="precode" style="background-color:black;color: white; width: 100%; visibility:hidden"></pre>
+
+
+                                    </p>
+                                    <btn class="btnCopy btn btn-outline-info btn-round" id="btnCopy" onCLick="getCode()">Auto Show/Copy</btn>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        
+                    </div>
+
+                </div>
+                
+                
+                
+                
+                
+                
+                
+                <div class="profile-tabs" style="display:none" id="manageFund">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <ul id="tabs" class="nav nav-tabs" role="tablist">
+     
+                                <li class="nav-item">
+                               <a href="#" onclick="returnProfile()"><img src="Dapp/asset/img/back.svg"></a>
+
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+				<div id="MyTabFund" class="tab-content">
+				
+                        <div class="tab-pane active" id="tweets" role="tabpanel">
+                            <div class="row">
+                            <div class="col-lg-12">
+                                                       
+                            </div>
+                                <div class="col-md-6">
+                                
+                                    <div class="tweets">
+
+                                        <div id="populateTransIn"></div>
+                                        <br />
+
+                                    </div>
+
+                                </div>
+                                
+                                <div class="col-md-6">
+                                
+                                    <div class="tweets">
+										
+                                        <div id="populateTransOut"></div>
+
+                                        <br />
+                                        
+                                    </div>
+
+                                </div>
+
+                                
+                            </div>
+                        </div>
+
+
+                        
+
+                        
+                    </div>
+
+                    
+
+                </div>
+
+<div class="profile-tabs" style="display:none" id="acceptance-Tab">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <ul id="ta" class="nav nav-tabs" role="tablist">
+     
+                                <li class="nav-item">
+                               <a href="#" onclick="returnProfile()"><img src="Dapp/asset/img/back.svg"></a>
+
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+				<div id="MyAcceptance" class="tab-content">
+				
+                        <div class="tab-pane active" id="t" role="tabpanel">
+                            <div class="row" id="populateAcceptance">
+                                                            
+							
+							
+                                
+                            </div>
+                        </div>
+
+
+                        
+
+                        
+                    </div>
+
+                    
+
+                </div>
+
+
+
+<div class="profile-tabs" style="display:none" id="MySmartAd-Tab">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <ul id="ta" class="nav nav-tabs" role="tablist">
+     
+                                <li class="nav-item">
+                               <a href="#" onclick="returnProfile()"><img src="Dapp/asset/img/back.svg"></a>
+
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+				<div id="MySmart" class="tab-content">
+				
+                        <div class="tab-pane active" id="t" role="tabpanel">
+                            <div class="row" id="populateSmartAd">
+                                                            
+							
+							
+                                
+                            </div>
+                        </div>
+
+
+                        
+
+                        
+                    </div>
+
+                    
+
+                </div>
+
+
+
+<div class="profile-tabs" style="display:none" id="setting-tab">
+                    <div class="nav-tabs-navigation">
+                        <div class="nav-tabs-wrapper">
+                            <ul id="tabs" class="nav nav-tabs" role="tablist">
+     
+                                <li class="nav-item">
+                               <a href="#" onclick="returnProfile()"><img src="Dapp/asset/img/back.svg"></a>
+
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+				<div id="setting-content" class="tab-content">
+				
+                        <div class="tab-pane active" id="tweets" role="tabpanel">
+                            <div class="row">
+
+								<div class="col-md-4 col-sm-6" id="destroyLocal">
+                                
+                                 <div class="card card-with-shadow" style="text-align:center">
+                                        <div class="card-block">
+                                        <img src="Dapp/asset/img/destroy.svg">
+                                            <h7 class="card-title" id="destroy"><small><a  href="#" onclick="$('#deleteModal').modal('show');" class="link-info">Destroy</a> local data</small></h7>
+											
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+							<div class="col-md-4 col-sm-6" id="backupLocal">
+                                
+                                 <div class="card card-with-shadow" style="text-align:center">
+                                        <div class="card-block">
+                                        <img src="Dapp/asset/img/store.svg">
+                                            <h7 class="card-title" id="backup0"><small><a  href="#" onclick="" id="backup" class="link-info">Backup</a> local data</small></h7>
+											
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+								
+								<div class="col-md-4 col-sm-6">
+                                    <div class="card card-with-shadow">
+                                        <div class="card-block" style="min-height:100px;">
+                                            <h7 class="card-title" id="suggestionTitle">Your friends are using epocum ! &middot; <small><a href="search" class="link-info">View all</a></small>
+                                            </h7>
+
+                                            <div class="accounts-suggestion">
+                                                <ul class="list-unstyled">
+                                                    <li class="account" id="friendDiv1" style=" display:none">
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="avatar">
+                                                                    <img src="" id="imageId1" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-7 description-section" id="name1">
+                                                                <a href="#paper-kit" class="text-muted" id="friendName1"></a>
+                                                                <br />
+                                                                <span class="text-muted"><small><a href="" id="friendWallet0" style="font-size:8px;" class="link-info"></a> </small></span>
+                                                            </div>
+
+                                                            <div class="col-md-2 follow">
+                                                                <btn class="btn btn-sm btn-outline-info btn-just-icon"><i class="fa fa-retweet"></i>
+                                                                </btn>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="account" id="friendDiv2" style=" display:none">
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="avatar">
+                                                                    <img src="" id="imageId2" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-7 description-section">
+                                                                <a href="#paper-kit" class="text-muted" id="friendName2"></a>
+                                                                <br />
+                                                                <span class="text-muted"><small><a href="" id="friendWallet1" style="font-size:8px;" class="link-info"></a> </small></span>
+                                                            </div>
+
+                                                            <div class="col-md-2 follow">
+                                                                <btn class="btn btn-sm btn-outline-info btn-just-icon"><i class="fa fa-retweet"></i>
+                                                                </btn>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="account" id="friendDiv3" style=" display:none">
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="avatar">
+                                                                    <img src="" id="imageId3" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-7 description-section">
+                                                                <a href="#paper-kit" class="text-muted" id="friendName3"></a>
+                                                                <br />
+                                                                <span class="text-muted"><small><a href="" id="friendWallet2" style="font-size:8px;" class="link-info"></a> </small></span>
+                                                            </div>
+
+                                                            <div class="col-md-2 follow">
+                                                                <btn class="btn btn-sm btn-outline-info btn-just-icon"><i class="fa fa-retweet"></i>
+                                                                </btn>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            
+												<fb:login-button scope="public_profile,email,user_friends" id="fbLink" onlogin="fbLogin();">
+                                            </fb:login-button>
+
+                                            <div id="status">
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <!-- end card -->
+                                    <!-- end card -->
+                                </div>
+
+                                
+                            </div>
+                        </div>
+
+
+                        
+
+                        
+                    </div>
+
+                    
+
+                </div>
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+    <footer class="footer section-gray">
+        <div class="container">
+            <div class="row">
+
+                <div class="credits ml-auto">
+                    <span class="copyright">
+						© <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> by Epocum Team
+					</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="wallet" style="visibility: hidden"></div>
+
+    <div id="openTransactionEPM" class="modalDialog">
+        <div style="background: white"> <a href="#close" title="Close" class="close">x</a>
+
+            <img src="Dapp/asset/img/epm.svg" style="margin-top:25px; float: left ">
+            <img src="Dapp/asset/img/arrow.svg" style="margin-top:25px;float: left ">
+            <img src="Dapp/asset/img/team/user.jpg" id="myTransactionPhotoEPM" alt="Circle Image" style="border-radius: 8px 15px !important; width: 14%;">
+
+            <label id="friendWalletEPM" style="font-size:xx-small; color: black;float: left;"></label>
+            <label id="idFbEPM" style="visibility:hidden"></label>
+            <input type="text" id="ajaxEPM" class="form-control input-xtreme" placeholder="Select a friend" aria-describedby="basic-addon1" list="datalist" onchange="getPhotoEPM()">
+            <input type="text" id="amountEPM" style="margin-top:5px;" placeholder="Amount EPM to send" class="form-control input-xtreme">
+            <input type="password" id="passwdEPM" class="tratt" style="display:none" style="margin-top:15px;" placeholder="password" class="form-control input-xtreme">
+
+            <datalist id="datalist"></datalist>
+            <div class="loader" id="loaderEPM"></div>
+
+            <!-- <input id="web" style="width:80%; height:30px; border:0;"> -->
+            <button class="btn save btn-success" id="buttonEPM" onclick="sendEPM();" style="margin-left:40%"><i class="fa fa-check"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="openTransactionETH" class="modalDialog">
+        <div style="background: white"> <a href="#close" title="Close" class="close">x</a>
+            <img src="Dapp/asset/img/eth.svg" style="margin-top:25px; width:50px; float: left ">
+            <img src="Dapp/asset/img/arrow.svg" style="margin-top:25px;">
+            <img src="Dapp/asset/img/team/user.jpg" id="myTransactionPhotoETH" style="border-radius: 8px 15px !important;width:14%;" alt="Circle Image">
+            <label id="friendWalletETH" style="font-size:xx-small; color: black"></label>
+            <label id="idFbETH" style="visibility:hidden"></label>
+            <div class="loader" id="loaderETH"></div>
+            <input type="text" id="ajaxETH" class="form-control input-xtreme" placeholder="Select a friend" aria-describedby="basic-addon1" list="datalist" onchange="getPhotoETH()">
+            <input type="text" id="amountETH" class="form-control input-xtreme" style="margin-top:5px;" placeholder="Amount ETH to send">
+            <input type="password" id="passwdETH" class="tratt" style="display:none" style="margin-top:15px;" placeholder="password" class="form-control input-xtreme">
+
+            <datalist id="datalist"></datalist>
+
+            <!-- <input id="web" style="width:80%; height:30px; border:0;"> -->
+            <button class="btn save btn-success" id="buttonETH" onclick="sendETH();" style="margin-left:40%"><i class="fa fa-check"></i>
+            </button>
+        </div>
+    </div>
+
+
+<div class="modal fade" id="smartData" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <h6>Smart sharing contract network events</h6>
+                    <h3 style=" text-align:center">of</h3>
+                    <h4 style=" text-align:center; color: green" id="ActualWebsiteAcceptance"></h4>
+                    <h6 style="font-size: xx-small" id="smartAddr"></h6>
+                </div>
+              
+               <div class="modal-body">
+                    <div style=" margin-left:60px;"><img alt="" src="Dapp/asset/img/netw.svg" style="width:40px;margin-left:40px;">Acceptance by advertisers:</div>
+                    <h1 style=" text-align:center" id="acceptanceCount"></h1>
+                </div>
+
+				<div class="modal-body text-center">
+                    <div id="populateWalletAcceptance"></div>
+                </div>
+				<div id="alreadyAccepted0" class="modal-body tratt" id="passToSignBox"  style="display:none" >
+                    <h6 id="alreadyAcceptedLbl" style=" text-align:center">Write local password:</h6>
+                    <input type="password" id="alreadyAccepted1" style=" text-align:center; width:100%; border-color:transparent" type="text" id="passwdToSign">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="noticeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-notice">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <h5 class="modal-title" id="myModalLabel">Well done !! Make sure epocum have the correct configuration</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="instruction">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p> <strong>Check </strong> infobox that contain the current status of your offline wallet that interface your data between smart contract and ipfs in the epocum network.</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    
+
+                    <p>If you have some problem,read our guides or don't hesitate to contact us or send us a mail. We're here to help!</p>
+                </div>
+                <div class="modal-footer">
+                    <input type="checkbox" value="None" id="squaredThree" name="check" checked />
+                    <label for="squaredThree" style="font-size:x-small">Dont show anymore</label>
+
+                    <button type="button" class="btn btn-primary btn-link" data-dismiss="modal">Okay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="generateAccount" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-notice">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <h5 class="modal-title" id="myModalLabel">Hey, welcome to Epocum !</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="instruction">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p id="infoStart"></p>
+                                <div class="col-sm-12 col-sm-offset-1" id="offMetamask">
+		                                    	<div class="form-group">
+		                                            <label id="notePass">Insert your strong wallet password and go on.</label>
+		                                            <input type="password" id="password" class="tratt" placeholder="">
+		                                        </div>
+		                                    </div>
+<div id="loader" style="display:none; margin-top:10px;" class="col-sm-12 text-center">
+								  <div id="shadow"></div>
+								  <div id="box"></div>
+								</div>
+
+		                                            <div id="addr" style="display:none"></div>
+		                                            <div id="generatedWallet" style="display:none"></div>
+
+
+		                                            <div id="addrDnld" style="display:none"></div>
+													<div id="wdate"></div>
+
+                            </div>
+                            
+                            <div class="col-md-12" id="onMetamask" style=" display:none">
+                                <p id="infoStart"></p>
+                                
+                                <div class="col-sm-12 col-sm-offset-2">
+		                                    	<div class="form-group">
+		                                    	<img src="Dapp/asset/img/metamask.jpg" style=" margin-left:30px;" class="pull-left" />
+
+		                                            <strong> <label id="addrMetamask" style="color: black; font-size: small; margin-top:15px;"></label></strong>
+		                                        </div>
+		                                    </div>
+							<div id="loader" style="display:none; margin-top:10px;" class="col-sm-12 text-center">
+								  <div id="shadow"></div>
+								  <div id="box"></div>
+								</div>
+                            </div>
+
+
+											<div class="col-sm-12 text-center" id="tellMore0" style="display:none">
+											 <h5 class="info-text"  style="margin-top:25px;"> Please tell us more about yourself.</h5>
+
+												<div class="picture-container">
+													<div class="wizard-card picture">
+														<canvas id="imageCanvas" style=" display:none"></canvas>
+														<img src="Dapp/asset/img/team/user.jpg" class="picture-src" id="wizardPicturePreview" title="" />
+														<input type="file" id="wizard-picture" name="wizard-picture">
+													</div>
+													
+												</div>
+											</div>
+											
+											<div class="col-sm-12 text-center" id="tellMore1" style="display:none">
+												<div class="form-group">
+													<label>First Name</label>
+													<input id="nameReg" type="text" class="form-control" placeholder="Andrew...">
+												</div>
+												<div class="form-group">
+													<label>Last Name</label>
+													<input id="surnameReg" type="text" class="form-control" placeholder="Smith...">
+												</div>
+											</div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">                           
+					<a href="/"><button type="button" id="buttonReload" style="display:none" class="btn btn-primary btn-link" value="" >Reload</button></a>
+                    <button type="button" id="buttonGen" class="btn btn-primary btn-link" onclick="hideBefore();" value="" >Generate</button>
+                    <button type="button" id="buttonGetStarted" class="btn btn-primary btn-link" onclick="addUserProfile();" value=""  style=" display:none">Get started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="smallAlertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center" id="isOn">
+                    <h5>What type of currency do you want to share? </h5>
+                </div>
+                <div class="modal-footer">
+                    <div class="left-side">
+                        <a href="#openTransactionETH" onclick="clean();$('#smallAlertModal').modal('hide');">
+                            <button type="button" class="btn btn-default btn-link"><img src="Dapp/asset/img/eth.svg" style="margin-top:5px; width:40px; float: left ">
+                            </button>
+                        </a>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="right-side">
+                        <a href="#openTransactionEPM" onclick="clean();$('#smallAlertModal').modal('hide');">
+                            <button type="button" class="btn btn-danger btn-link"><img src="Dapp/asset/img/epm.svg" style="margin-top:5px; float: left ">
+                            </button>
+                        </a>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="left-side">
+                        <a href="" onclick="clean();">
+                            <button type="button" onclick="clean();" class="btn btn-default btn-link">OTHER(Beta 1.0)</button>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm ">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <h5>Are you sure you want to delete this account? </h5>
+                </div>
+                <div class="modal-footer">
+                    <div class="left-side">
+                        <button type="button" class="btn btn-default btn-link" data-dismiss="modal">Never mind</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="right-side">
+                        <button type="button" onclick="deleteLocal()" class="btn btn-danger btn-link">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="addWebModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <h5>Insert below your website URL please </h5>
+                    <input type="text" id="web" class="insert" class="form-control input-xtreme no-border" placeholder="www.yourwebsite.some" aria-describedby="basic-addon1">
+           			
+
+                </div>
+                <div class="modal-body text-center">
+
+                <input type="password" id="passwd" class="tratt" style="display:none" style="margin-top:15px;" placeholder="Password" class="form-control input-xtreme">
+                    </div>
+                <div class="modal-footer">
+                
+                    <button class="btn save btn-success" onclick="smartWebSign()"><i class="fa fa-check"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="modal fade" id="someIsNeed" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <h6 id="infonotify"></h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="providePassword" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm ">
+            <div class="modal-content">
+                <div class="modal-header no-border-header">
+                    <div></div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <h5>Insert your local password</h5>
+           			<input type="password" id="passwdProvided" class="tratt" style="margin-top:15px;" placeholder="" class="form-control input-xtreme">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn save btn-success" onclick="smartAddUser()"><i class="fa fa-check"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="modal fade" id="newSmartModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div  class="modal-header no-border-header">
+
+                    <div>Generate Smart sharing contract </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <fieldset>
+
+                        <select id="mywebsite2" class="noborder" style="text-align:center; margin-bottom:20px; font-family: 'Courier New', Courier, monospace; ">
+                        </select>
+                    </fieldset>
+
+
+                    <h5>Connectivity TARGET</h5>
+                    <h8>(Insert here the requested connectivity in total)</h8>
+					<input type="text" id="target" class="form-control input-xtreme no-border" placeholder="0" style="text-align:center; font-size: xx-large;" aria-describedby="basic-addon1">
+					
+					<div id="isLocal" style="display: none">
+                    
+                     <h5>Insert your local password</h5>
+           			<input type="password" id="passwdLocal" class="tratt" style="margin-top:15px;" placeholder="" class="form-control input-xtreme">
+           			</div>
+					<!-- <input type="text" id="content" cols="40" rows="5" value="I commit myself to pay,over this smartcontract, each person that share my website:" class="form-control input-xtreme no-border" va aria-describedby="basic-addon1">
+											-->
+                </div>
+
+                <div class="modal-footer text-center">
+                  <button class="btn save btn-success" onclick="createSmartAdv()"><i class="fa fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="actualWeb" style="display:none"></div>
+<div id="wallet" style="display:none"></div>
+
+</body>
+
+<script src="Dapp/asset/js/bootstrap/tether.min.js" type="text/javascript"></script>
+<script src="Dapp/asset/js/bootstrap/bootstrap.min.js" type="text/javascript"></script>
+
+<!--  for fileupload -->
+<script src="Dapp/asset/js/bootstrap/jasny-bootstrap.min.js"></script>
+<!-- Switches -->
+<script src="Dapp/asset/js/bootstrap/bootstrap-switch.min.js"></script>
+<script src="Dapp/asset/js/framework.js"></script>
+<script src="Dapp/asset/js/HoldOn.js"></script>
+<script>
+
+                // Prepare the preview for profile picture
+                $("#wizard-picture").change(function(){
+                    readURL(this);
+                });
+
+         //Function to show image before upload
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+var imageLoader = document.getElementById('wizard-picture');
+    imageLoader.addEventListener('change', handleImage, false);
+    var canvas = document.getElementById('imageCanvas');
+    var ctx = canvas.getContext('2d');
+
+
+    function handleImage(e) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            }
+            img.src = event.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+    
+    ipfs.setProvider();
+    
+    var jpgBuffer = new buffer.Buffer('ffd8ffe000104a46494600010101006000600000ffe1001645786966000049492a0008000000000000000000ffdb00430001010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101ffdb00430101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101ffc00011080001000103012200021101031101ffc400150001010000000000000000000000000000000affc40014100100000000000000000000000000000000ffc40014010100000000000000000000000000000000ffc40014110100000000000000000000000000000000ffda000c03010002110311003f00bf8001ffd9', 'hex');
+
+
+    function closeTransactions() {
+        document.getElementById('openTransactionEPM').style.visibility = 'hidden';
+        document.getElementById('openTransactionETH').style.visibility = 'hidden';
+        $('#newSmartModal').modal('hide');
+        $('#addWebModal').modal('hide');
+        $('#providePassword').modal('hide');
+
+        console.log('close');
+    }
+    
+            var aInterval = setInterval(function() {
+            
+            	if (doNothing == false) {
+            		w = document.getElementById('walletAddr').innerHTML;
+					checkAmount();
+					//smartCheckUser();
+					preCheckUser();
+					populateTransactionsIn();
+    				populateTransactionsOut();
+    				countMySmartSharingContract();
+
+    				
+    			}
+
+			}, 1000);
+
+
+
+function smartTab() {
+        document.getElementById('profileTab').style.display = 'none';
+        document.getElementById('MySmartAd-Tab').style.display = 'block';
+    }
+    
+
+function acceptanceTab() {
+        document.getElementById('profileTab').style.display = 'none';
+        document.getElementById('acceptance-Tab').style.display = 'block';
+    }
+
+function manageFund() {
+        document.getElementById('profileTab').style.display = 'none';
+        document.getElementById('manageFund').style.display = 'block';
+    }
+    
+function returnProfile() {
+        document.getElementById('profileTab').style.display = 'block';
+        document.getElementById('manageFund').style.display = 'none';
+        document.getElementById('setting-tab').style.display = 'none';
+        document.getElementById('MySmartAd-Tab').style.display = 'none';
+		document.getElementById('acceptance-Tab').style.display = 'none';
+
+    }
+
+function setting() {
+        document.getElementById('profileTab').style.display = 'none';
+        document.getElementById('setting-tab').style.display = 'block';
+    }
+
+
+
+    populateTransactionsIn();
+    populateTransactionsOut();
+	checkAmount();
+	getAllInNetwork();
+	setBackup();
+
+					</script>
+
+</html>

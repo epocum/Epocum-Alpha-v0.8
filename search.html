@@ -1,0 +1,257 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="../Dapp/asset/img/favicon.ico">
+    <link rel="apple-touch-icon" sizes="76x76" href="../Dapp/asset/img/apple-icon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <title>Epocum smart sharing platform</title>
+
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <!-- Base style -->
+    <link href="Dapp/asset/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="Dapp/asset/css/style.css" rel="stylesheet" />
+    <!-- Transactions -->
+    <link href="Dapp/asset/css/HoldOn.css" rel="stylesheet" type="text/css">
+    <!--     Fonts and icons     -->
+    <link href="Dapp/asset/css/loopFont.css" rel="stylesheet" type="text/css" />
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,300,700' rel='stylesheet' type='text/css'>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+    <link href="Dapp/asset/css/nucleo-icons.css" rel="stylesheet">
+    <!-- Javascript -->
+    <script src="Dapp/asset/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <!-- Epocum Javascript -->
+    <script type="text/javascript" src="Dapp/asset/js/epocum/epocum.link.js"></script>
+    <!-- Fb Javascript -->
+    <script type="text/javascript" src="Dapp/asset/js/epocum/epocum.fb.link.js"></script>
+    <!-- G+ Javascript -->
+    <script type="text/javascript" src="Dapp/asset/js/epocum/epocum.google.link.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+    <!-- Ipfs Javascript -->
+    <script src="Dapp/asset/js/ipfs/buffer.js"></script>
+    <script src="Dapp/asset/js/ipfs/file-type.js"></script>
+    <script src="Dapp/asset/js/ipfs/ipfs.js"></script>
+
+
+    <script>
+        // MetaMask injects the web3 library for us.
+        window.addEventListener('load', function() {
+
+            HoldOn.open({
+                theme: "sk-cube-grid",
+                message: "<h5>Epocum is retriving data from the smartcontract</h5>"
+            });
+
+            setTimeout(function() {
+                HoldOn.close();
+                document.getElementById("searchInfo").style.visibility = "visible";
+
+            }, 3000);
+
+            // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+            if (typeof web3 !== 'undefined') {
+                // Use Mist/MetaMask's provider
+                window.web3 = new Web3(web3.currentProvider);
+            } else {
+                console.log('No web3? You should consider trying MetaMask!')
+                    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+                window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+            }
+            web3.version.getNetwork((err, netId) => {
+                switch (netId) {
+                    case "1":
+                        console.log('This is mainnet')
+                        break
+                    case "2":
+                        console.log('This is the deprecated Morden test network.')
+                        break
+                    case "3":
+                        console.log('This is the ropsten test network.')
+                        break
+                    default:
+                        console.log('This is an unknown network.')
+                }
+
+
+            })
+
+
+            var account = '';
+            var accountInterval = setInterval(function() {
+                if (web3.eth.accounts[0] !== account) {
+                    document.getElementById("wallet").innerHTML = web3.eth.accounts[0];
+                    account = web3.eth.accounts[0];
+                    getAccount_and_show()
+                }
+            }, 100);
+
+        })
+
+        ipfs.setProvider();
+
+        function httpGet(theUrl) {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", theUrl, false); // false for synchronous request
+            xmlHttp.send(null);
+            return xmlHttp.responseText;
+        }
+
+        function getAccount_and_show() {
+            var wallet = document.getElementById("wallet").innerHTML;
+            getUserFromSearch();
+        }
+
+        function changeVisibility() {
+
+            if (document.getElementById("code").style.display == 'block') {
+                document.getElementById("code").style.display = 'none';
+            } else {
+                document.getElementById("code").style.display = 'block';
+            }
+        }
+    </script>
+
+
+</head>
+
+<body class="search">
+    <nav class="navbar navbar-toggleable-md fixed-top navbar-transparent" color-on-scroll="200">
+        <div class="container" style="margin-top: 30px;">
+            <a class="navbar-brand" href="/" style="font-family:'Loops of Fury  Wide';">epocum</a>
+            <h9 style="color:white; font-size:xx-small; margin-left:-20px; margin-top: 20px;">v0.8</h9>
+
+        </div>
+    </nav>
+
+    <div class="wrapper" id="searchInfo" style="visibility:hidden">
+        <div class="page-header page-header-xs" style="background-image: url(''); color:white">
+            <div class="filter"></div>
+        </div>
+
+        <div class="profile-content section-white-gray">
+            <div class="container">
+                <div class="row owner">
+                    <div class="col-md-2 offset-md-5 col-sm-4 offset-md-4 col-xs-6 offset-md-3 text-center">
+                        <div class="avatar">
+                            <a href="\"><img src="Dapp/asset/img/team/user.jpg" id="imageprofile" alt="Circle Image" class="img-oval img-responsive">
+                            </a>
+                        </div>
+
+                        <div class="name">
+                            <h4 id="name"></h4>
+                            <h4 id="surname"></h4>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="section section-white section-search">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6 offset-md-3 col-xs-12 text-center">
+                            <form role="search" class="form-inline search-form">
+                                <div class="input-group no-border">
+                                  <span class="input-group-addon addon-xtreme no-border" id="basic-addon1"><i class="fa fa-search"></i></span>
+                                  <input type="text" class="form-control input-xtreme no-border" placeholder="Find Stuff" aria-describedby="basic-addon1">
+                                </div>
+                            </form>
+
+                            <h6 class="text-muted">Find your friend to send money</h6>
+                            <ul class="list-unstyled follows">
+                                <li>
+                                    <div class="row">
+                                        <div class="col-md-2 offset-md-1 col-xs-3 col-xs-offset-2">
+                                            <img src="" id="imageId1" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                        </div>
+                                        <div class="col-md-6 col-xs-4 description">
+                                            <h5 id="friendName1"><br /><small></small></h5>
+                                        </div>
+                                        <div class="col-md-2 col-xs-2">
+                                            <button class="btn btn-just-icon btn-round btn-outline-danger btn-tooltip" rel="tooltip" title="follow"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="row">
+                                        <div class="col-md-2 offset-md-1 col-xs-3 col-xs-offset-2">
+                                            <img src="" id="imageId2" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                        </div>
+                                        <div class="col-md-6 col-xs-4 description">
+                                            <h5 id="friendName2"><br /><small></small></h5>
+                                        </div>
+                                        <div class="col-md-2 col-xs-2">
+                                            <button class="btn btn-just-icon btn-round btn-outline-danger btn-tooltip" rel="tooltip" title="follow"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="row">
+                                        <div class="col-md-2 offset-md-1 col-xs-3 col-xs-offset-2">
+                                            <img src="" id="imageId3" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                        </div>
+                                        <div class="col-md-6 col-xs-4 description">
+                                            <h5 id="friendName3"><br /><small></small></h5>
+                                        </div>
+                                        <div class="col-md-2 col-xs-2">
+                                            <button class="btn btn-just-icon btn-round btn-outline-danger btn-tooltip" rel="tooltip" title="follow"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="row">
+                                        <div class="col-md-2 offset-md-1 col-xs-3 col-xs-offset-2">
+                                            <img src="" id="imageId4" alt="Circle Image" class="img-littleoval img-no-padding img-responsive">
+                                        </div>
+                                        <div class="col-md-6 col-xs-4 description">
+                                            <h5 id="friendName4"><br /><small></small></h5>
+                                        </div>
+                                        <div class="col-md-2 col-xs-2">
+                                            <button class="btn btn-just-icon btn-round btn-outline-danger btn-tooltip" rel="tooltip" title="follow"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </li>
+
+                            </ul>
+
+                            <div class="text-missing">
+                                <h5 class="text-muted">If you are not finding who youâ€™re looking for try using an email address. </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+
+                <div class="credits ml-auto">
+                    <span class="copyright">
+						© <script>document.write(new Date().getFullYear())</script>, made with <i class="fa fa-heart heart"></i> by Epocum Team
+					</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="wallet" style="visibility: hidden"></div>
+
+</body>
+
+<script src="Dapp/asset/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="Dapp/asset/js/bootstrap/tether.min.js" type="text/javascript"></script>
+<script src="Dapp/asset/js/bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<script src="Dapp/asset/js/bootstrap/jasny-bootstrap.min.js"></script>
+<script src="Dapp/asset/js/framework.js"></script>
+<script src="Dapp/asset/js/HoldOn.js"></script>
+
+
+</html>
